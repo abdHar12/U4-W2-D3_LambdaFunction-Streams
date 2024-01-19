@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 public class Application {
 
     public static void main(String[] args) {
-        String books="Books";
+
         String boys="Boys";
         String baby="Baby";
         /*
@@ -27,28 +27,33 @@ public class Application {
         String streetAddress = faker.address().streetAddress(); // 60018 Sawayn Brooks Suite 449
 
         System.out.printf(name+firstName+lastName+streetAddress);*/
-        Faker faker = new Faker();
 
         Supplier<Double> doubleSupplier = ()->{
             Random random = new Random();
             return Math.floor((random.nextDouble(1, 200)) * 100) / 100;
         };
 
-        Product prodotto1 = new Product(faker.book().title(), books, doubleSupplier.get());
-        Product prodotto2 = new Product(faker.book().title(), books, doubleSupplier.get());
-        Product prodotto3 = new Product(faker.book().title(), books, doubleSupplier.get());
-        Product prodotto4 = new Product(faker.book().title(), books, doubleSupplier.get());
+        Supplier<Integer> tierSupplier=()->{
+            Random random = new Random();
+            return random.nextInt(1, 5);
+        };
+        Faker faker = new Faker();
+
+        Supplier<Product> createNewProductBook= ()->{
+            String books="Books";
+            return new Product(faker.book().title(), books, doubleSupplier.get());
+        };
+
+        ArrayList<Product> allProducts = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            allProducts.add(createNewProductBook.get());
+        }
+
         Product prodotto5 = new Product("Peluche di " + faker.cat().name(), baby, doubleSupplier.get());
         Product prodotto6 = new Product("Giocattolo: " + faker.dog().name(), baby, doubleSupplier.get());
         Product prodotto7 = new Product("Peluche di " + faker.animal().name(), baby, doubleSupplier.get());
         Product prodotto8 = new Product("Action figure di: " + faker.dragonBall().character(), boys, doubleSupplier.get());
         Product prodotto9 = new Product("Action figure del personaggio di Ritorno al futuro: " + faker.backToTheFuture().character(), boys, doubleSupplier.get());
-
-        ArrayList<Product> allProducts = new ArrayList<>();
-        allProducts.add(prodotto1);
-        allProducts.add(prodotto2);
-        allProducts.add(prodotto3);
-        allProducts.add(prodotto4);
         allProducts.add(prodotto5);
         allProducts.add(prodotto6);
         allProducts.add(prodotto7);
@@ -65,29 +70,32 @@ public class Application {
         System.out.println("-------------------libri di piu di 100€--------------");
         allProducts.stream().filter(pr -> isMoreThan100.test(pr.getPrice())).forEach(pr -> System.out.println(pr));
 
-        Costumer costumer1=new Costumer(faker.dragonBall().character(), 2);
-        Costumer costumer2=new Costumer(faker.dragonBall().character(), 4);
-        Costumer costumer3=new Costumer(faker.howIMetYourMother().character(), 1);
-        Costumer costumer4=new Costumer(faker.harryPotter().character(), 3);
+        Supplier<Costumer> createCostumer=()->{
+          return new Costumer(faker.name().firstName()+" "+faker.name().lastName(), tierSupplier.get());
+        };
 
         ArrayList<Product> order1= new ArrayList<>();
-        order1.add(prodotto3);
-        order1.add(prodotto2);
+        order1.add(createNewProductBook.get());
+        order1.add(createNewProductBook.get());
         ArrayList<Product> order2= new ArrayList<>();
-        order2.add(prodotto4);
+        order2.add(createNewProductBook.get());
         order2.add(prodotto5);
         ArrayList<Product> order3= new ArrayList<>();
         order3.add(prodotto9);
         ArrayList<Product> order4= new ArrayList<>();
+        order4.add(prodotto6);
         order4.add(prodotto7);
+        ArrayList<Product> order5= new ArrayList<>();
+        order5.add(createNewProductBook.get());
+
         ArrayList<Order> allOrders = new ArrayList<>();
 
-        allOrders.add(new Order("In arrivo", LocalDate.parse("2021-02-10"), LocalDate.parse("2024-01-10"), order1,costumer1));
-        allOrders.add(new Order("In Elaborazione", LocalDate.parse("2021-03-10"),LocalDate.parse("2023-12-31"), order2,costumer4));
-        allOrders.add(new Order("Spedito", LocalDate.parse("2024-01-10"),LocalDate.parse("2024-01-17"), order3,costumer2));
-        allOrders.add(new Order("In arrivo", LocalDate.parse("2023-05-10"), LocalDate.parse("2024-01-11"), order4,costumer3));
-        allOrders.add(new Order("In arrivo", LocalDate.parse("2024-03-20"),LocalDate.parse("2024-01-11"), order4,costumer3));
-        allOrders.add(new Order("In arrivo", LocalDate.parse("2023-05-10"), LocalDate.parse("2024-01-11"), order4,costumer3));
+        allOrders.add(new Order("In arrivo", LocalDate.parse("2021-02-10"), LocalDate.parse("2024-01-10"), order1,createCostumer.get()));
+        allOrders.add(new Order("In Elaborazione", LocalDate.parse("2021-03-10"),LocalDate.parse("2023-12-31"), order2,createCostumer.get()));
+        allOrders.add(new Order("Spedito", LocalDate.parse("2024-01-10"),LocalDate.parse("2024-01-17"), order3,createCostumer.get()));
+        allOrders.add(new Order("In arrivo", LocalDate.parse("2023-05-10"), LocalDate.parse("2024-01-11"), order4,createCostumer.get()));
+        allOrders.add(new Order("In arrivo", LocalDate.parse("2024-03-20"),LocalDate.parse("2024-01-11"), order4,createCostumer.get()));
+        allOrders.add(new Order("In arrivo", LocalDate.parse("2023-05-10"), LocalDate.parse("2024-01-11"), order5, createCostumer.get()));
 
         System.out.println("-------------------Tutti gli ordini--------------");
         allOrders.forEach(o->System.out.println(o));
